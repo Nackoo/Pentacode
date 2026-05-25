@@ -31,7 +31,9 @@ MAP2 example:
 
 Length Stream example (derived from "katze"):
 
-`Position 0: Byte 184 --> (184 % 3) + 1 = 2 symbols`
-`Position 1: Byte 52  --> (52 % 3)  + 1 = 2 symbols`
-`Position 2: Byte 213 --> (213 % 3) + 1 = 1 symbol`
-`Position 3: Byte 90  --> (90 % 3)  + 1 = 1 symbol`
+```
+Position 0: Byte 184 --> (184 % 3) + 1 = 2 symbols
+Position 1: Byte 52  --> (52 % 3)  + 1 = 2 symbols
+Position 2: Byte 213 --> (213 % 3) + 1 = 1 symbol
+Position 3: Byte 90  --> (90 % 3)  + 1 = 1 symbol
+```
