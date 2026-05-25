@@ -3,7 +3,7 @@ An experimental encryption mechanism.
 
 ## how it works
 
-### [MAP1] CONVERT SUPPORTED CHARACTER TO NUMBERS:
+#### [MAP1] CONVERT SUPPORTED CHARACTER TO NUMBERS:
 
 | Character | Number | Character | Number | Character | Number | Character | Number | Character | Number |
 |-----------|--------|-----------|--------|-----------|--------|-----------|--------|-----------|--------|
