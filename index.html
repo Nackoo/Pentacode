@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pentacode</title>
+  <meta property="og:title" content="Pentacode V.3">
+  <meta property="og:description" content="Encoding things with variable-length key-deterministic symbol generation">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+:root {
+    --background: #0d1117;
+    --text: #ddd;
+    --bg: #21262d;
+    --accent: #58a6ff;
+    --error-color: #ff7b72;
+}
+* { box-sizing: border-box; }
+body {
+    font-family: sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--background);
+    color: var(--text);
+    overflow: hidden;
+}
+#key-bar {
+    display: flex;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--bg);
+    border-bottom: 1px solid #30363d;
+    align-items: center;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+.key-group { display: flex; align-items: center; gap: 6px; }
+.key-group label { font-size: 12px; color: #8b949e; white-space: nowrap; }
+.key-group input {
+    background: var(--background);
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: var(--text);
+    padding: 4px 8px;
+    font-size: 13px;
+    font-family: monospace;
+    outline: none;
+    width: 160px;
+}
+.key-group input:focus { border-color: var(--accent); }
+#panels { display: flex; flex-direction: row; flex: 1; overflow: hidden; }
+#encoder, #decoder {
+    width: 100%; height: 100%; font-size: 15px; padding: 10px; resize: none;
+    color: var(--text); outline: none; background-color: var(--background);
+    white-space: pre-wrap; line-height: 1.5; font-family: sans-serif; border: none;
+}
+#decoder { font-family: monospace; font-size: 14px; }
+aside { display: flex; flex-direction: column; width: 50%; overflow: hidden; }
+#output-section { position: relative; }
+#error-message {
+    color: var(--error-color); background: var(--bg); display: none;
+    font-size: 13px; padding: 5px 10px; border-bottom: 1px solid #30363d;
+}
+#copyButton {
+    position: absolute; bottom: 10px; padding: 5px 10px; cursor: pointer;
+    background-color: var(--bg); border: 1px solid #30363d; padding-top: 9px;
+    color: var(--text); border-radius: 4px; right: 10px;
+}
+#copyButton:hover { border-color: var(--accent); }
+@media (max-width: 768px) {
+    #panels { flex-direction: column; }
+    aside { width: 100%; height: 50%; }
+    #encoder, #decoder { height: 100%; }
+    #key-bar { flex-direction: column; align-items: flex-start; }
+    .key-group input { width: 140px; }
+}
+#copyNotification {
+    display: none; background-color: var(--bg); color: var(--text);
+    font-size: 14px; padding: 10px; border-bottom: 1px solid #30363d;
+}
+span { color: grey; }
+#divider { width: 1px; background: #30363d; flex-shrink: 0; }
+.panel-label { padding: 5px 10px; font-size: 11px; color: #555; background: var(--bg); border-bottom: 1px solid #30363d; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<div id="key-bar">
+    <div class="key-group">
+        <label>Private Key:</label>
+        <input type="text" id="privateKeyInput" placeholder="e.g. katze" />
+    </div>
+</div>
+
+<div id="panels">
+    <aside id="input-section">
+        <div class="panel-label">plain text</div>
+        <textarea id="encoder" placeholder="input plain text here..."></textarea>
+    </aside>
+    <div id="divider"></div>
+    <aside id="output-section">
+        <div class="panel-label">pentacode v.3 <span style="color:#444;font-size:10px;">— public key on first line, variable symbols on second</span></div>
+        <div id="copyNotification"><svg style="margin-top:-10px;margin-bottom:-7px;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/></svg> Copied!</div>
+        <div id="error-message"></div>
+        <textarea id="decoder" placeholder="paste pentacode here to decode..."></textarea>
+        <button id="copyButton"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M14 4v3a1 1 0 0 1-1 1h-3m4 10v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h2m11-3v10a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V7.87a1 1 0 0 1 .24-.65l2.46-2.87a1 1 0 0 1 .76-.35H18a1 1 0 0 1 1 1Z"/></svg></button>
+    </aside>
+</div>
+
+<script>
+// MAP1 Defining inputs
+const MAP1_ENC = {
+  'a':1,'b':2,'c':3,'d':4,'e':5,'f':6,'g':7,'h':8,'i':9,'j':10,
+  'k':11,'l':12,'m':13,'n':14,'o':15,'p':16,'q':17,'r':18,'s':19,'t':20,
+  'u':21,'v':22,'w':23,'x':24,'y':25,'z':26,
+  'A':27,'B':28,'C':29,'D':30,'E':31,'F':32,'G':33,'H':34,'I':35,'J':36,
+  'K':37,'L':38,'M':39,'N':40,'O':41,'P':42,'Q':43,'R':44,'S':45,'T':46,
+  'U':47,'V':48,'W':49,'X':50,'Y':51,'Z':52,
+  '0':53,'1':54,'2':55,'3':56,'4':57,'5':58,'6':59,'7':60,'8':61,'9':62,
+  ' ':63,'?':64,"'":65,'"':66,'.':67,',':68,'\n':69
+};
+const MAP1_DEC = {};
+for (const [ch,n] of Object.entries(MAP1_ENC)) MAP1_DEC[n] = ch;
+
+const MAP2_BASE = [
+  '\u03c0','\u03c3','\u0413','\u042d','\u221a','*','\u201c','#',
+  'E','O','L','R','f','n','\u0423','w','\u042e','\u0252',
+  'Y','i','\u221e','T','\u2202','\u0254','\u03c6','\u00a7',
+  '\u025b','\u0257','\u00bf','6','F','\u03c9','7','5','^',
+  '\u03bf','~','}','<',';','\u2260','\u2211','\u0258','\u042f',
+  '\u0417','z','I','>','%','\u025e','\u00a2','a','\u03c7',
+  '\u00f7','\u03b3','\u0251','p','b','g','_','e','\u222b',
+  '\u0262','\u00f8','\u0255','|','\u03b2','\u0418','\u00e6',
+  '\u041e','4','(','\u025f','\u03c5','\u00ae','\u0419','\u00d7',
+  'j','!','Q','\u041b','\u041a','\u00a1','\u0422','\u041d',
+  'S','\u00a5','X','c','\u0426','\u03b1','\u03ba','V','\u0416',
+  '\u03c8','x','\u20ac','\u0421','N','\u2248',':','\u0260',
+  '\u00de','&','t','8','s','@','v','\u03b6','k','P','\u03c4',
+  '\u0425','\u0142','\u03b8','\u03b5','M','\u0253','+','.',
+  '\u03c1','\u0415','G','\u0427','\u03b4',']','o','\u03bd',
+  '\u042b','\u00b1','-','\u0410','0','\u0424','m','y','?',
+  '\u00b5','\u00ac','\u03b7','`','{','q','\u0428','H','\u00a3',
+  '\u03be','[','9',')','\u25cb','Z','\u041f','J','\u2019','B',
+  '\u042c','\u0412','U','C','\u03bb','r','\u0429','\u20bd',
+  '\u2122','3','\u0411','$','h','\u00a9','\u0420','\u0414',
+  '\u00b0','2','l','\u2206','/','\u025c','\u03b9','u','\u03bc',
+  '\u0261',
+  '\u0531','\u0532','\u0533','\u0534','\u0535','\u0536','\u0537',
+  '\u0538','\u0539','\u053a','\u053b','\u053c','\u053d','\u053e',
+  '\u053f','\u0540','\u0541','\u0542','\u0543','\u0544','\u0545'
+];
+
+// Generates a predictable stream of values derived purely from the private key seed
+// via SHA-256 cycles. This handles both shuffling and our variable-width lengths.
+async function deriveCryptoStream(privateKey, totalSteps) {
+  const encoder = new TextEncoder();
+  let currentSeed = encoder.encode(privateKey);
+  const streamBytes = new Uint8Array(Math.max(totalSteps, 256));
+  
+  let written = 0;
+  while (written < streamBytes.length) {
+    const hashBuffer = await crypto.subtle.digest('SHA-256', currentSeed);
+    const hashArray = new Uint8Array(hashBuffer);
+    for (let i = 0; i < hashArray.length && written < streamBytes.length; i++) {
+      streamBytes[written++] = hashArray[i];
+    }
+    currentSeed = hashArray; // Chain the hashes for endless deterministic randomness
+  }
+  return streamBytes;
+}
+
+async function buildMAP2(privateKey) {
+  const stream = await deriveCryptoStream(privateKey, MAP2_BASE.length);
+  const symbols = MAP2_BASE.slice();
+  
+  for (let i = symbols.length - 1; i > 0; i--) {
+    const j = (stream[i] + i) % (i + 1); 
+    [symbols[i], symbols[j]] = [symbols[j], symbols[i]];
+  }
+  
+  const enc = {}, dec = {};
+  for (let i = 0; i < symbols.length; i++) {
+    const sum = i + 3;
+    enc[sum] = symbols[i];
+    dec[symbols[i]] = sum;
+  }
+  return { enc, dec };
+}
+
+const PUB_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function genPublicKey(len) {
+  const arr = new Uint8Array(len);
+  crypto.getRandomValues(arr);
+  return Array.from(arr).map(b => PUB_CHARS[b % 62]).join('');
+}
+
+function toM1(str) { return [...str].map(ch => MAP1_ENC[ch] !== undefined ? MAP1_ENC[ch] : null); }
+function cycle(arr, len) { const o=[]; for(let i=0;i<len;i++) o.push(arr[i%arr.length]); return o; }
+
+// ENCODE V.3 (With private-key deterministic symbol lengths)
+async function pentaEncode(plainText, privateKey, publicKey) {
+  const ptN  = toM1(plainText);
+  const pvkN = toM1(privateKey);
+  const pbkN = toM1(publicKey);
+  
+  const badPT = new Set();
+  ptN.forEach((n,i) => { if(n===null) badPT.add(plainText[i]); });
+  if (badPT.size) return { unsupportedChars: [...badPT] };
+  if (pvkN.some(n=>n===null)) return { pvkError: true };
+  
+  const map2 = await buildMAP2(privateKey);
+  const n = plainText.length;
+  const pvkC = cycle(pvkN, n);
+  
+  // Advanced Tweak: Derive a deterministic layout stream for positions
+  const lenStream = await deriveCryptoStream(privateKey + "_lengths", n);
+  
+  const result = [];
+  for (let i = 0; i < n; i++) {
+    // Deterministic width: turns byte into a length value of 1, 2, or 3 symbols
+    const targetSymbolCount = (lenStream[i] % 3) + 1; 
+    
+    // Base encryption math
+    const baseSum = ptN[i] + pvkC[i] + pbkN[i];
+    
+    for (let s = 0; s < targetSymbolCount; s++) {
+      // Modify each subsequent split sub-symbol slightly but deterministically
+      const subSum = baseSum + s; 
+      if (map2.enc[subSum] === undefined) return { rangeError: subSum };
+      result.push(map2.enc[subSum]);
+    }
+  }
+  return { ok: result.join('') };
+}
+
+// DECODE V.3
+async function pentaDecode(encrypted, privateKey, publicKey) {
+  const chars = [...encrypted];
+  const pvkN  = toM1(privateKey);
+  const pbkN  = toM1(publicKey);
+  if (pvkN.some(n=>n===null)) return { pvkError: true };
+  if (pbkN.some(n=>n===null)) return { pbkError: true };
+  
+  const map2 = await buildMAP2(privateKey);
+  
+  // We don't know the size of plaintext beforehand, so we estimate based on symbol counts
+  const lenStream = await deriveCryptoStream(privateKey + "_lengths", chars.length);
+  
+  const plainNums = [];
+  let charIdx = 0;
+  let plainIdx = 0;
+  
+  const badSym = new Set();
+  
+  while (charIdx < chars.length) {
+    const targetSymbolCount = (lenStream[plainIdx] % 3) + 1;
+    
+    if (charIdx + targetSymbolCount > chars.length) {
+      return { formatError: true }; // Ciphertext cut off or mismatched
+    }
+    
+    // Read the primary cipher block symbol
+    const val = map2.dec[chars[charIdx]];
+    if (val === undefined) { badSym.add(chars[charIdx]); charIdx += targetSymbolCount; plainIdx++; continue; }
+    
+    // Validation: make sure secondary symbols match our deterministic math expansion
+    for(let s = 1; s < targetSymbolCount; s++) {
+      const subVal = map2.dec[chars[charIdx + s]];
+      if(subVal !== val + s) {
+        return { validationError: true }; // Data tampered with or wrong key
+      }
+    }
+    
+    // Dynamic execution of shift subtraction
+    // Real math positional matching alignment:
+    const privateKeyShiftValue = pvkN[plainIdx % pvkN.length];
+    const publicKeyShiftValue  = pbkN[plainIdx % pbkN.length];
+    
+    plainNums.push(val - privateKeyShiftValue - publicKeyShiftValue);
+    
+    charIdx += targetSymbolCount;
+    plainIdx++;
+  }
+  
+  if (badSym.size) return { invalidSymbols: [...badSym] };
+  const badRange = plainNums.filter(v => MAP1_DEC[v] === undefined);
+  if (badRange.length) return { rangeError: badRange };
+  
+  return { ok: plainNums.map(v => MAP1_DEC[v]).join('') };
+}
+
+// UI Controllers
+const encoderEl = document.getElementById('encoder');
+const decoderEl = document.getElementById('decoder');
+const pvkInput  = document.getElementById('privateKeyInput');
+const errEl     = document.getElementById('error-message');
+const copyBtn   = document.getElementById('copyButton');
+const copyNote  = document.getElementById('copyNotification');
+
+let isUpdating     = false;
+let currentPubKey  = '';
+
+function showErr(msg) { errEl.innerHTML=msg; errEl.style.display='block'; }
+function clearErr()   { errEl.style.display='none'; }
+
+function formatOutput(pubKey, encrypted) { return pubKey + '\n\n' + encrypted; }
+function parseInput(raw) {
+  const lines = raw.split('\n\n');
+  if (lines.length < 2) return null;
+  const pubKey    = lines[0].trim();
+  const encrypted = lines.slice(1).join('');
+  return { pubKey, encrypted };
+}
+
+async function onPlainTextChange() {
+  if (isUpdating) return;
+  isUpdating = true;
+  clearErr();
+  const plainText  = encoderEl.value;
+  const privateKey = pvkInput.value;
+  if (!plainText)  { decoderEl.value=''; currentPubKey=''; isUpdating=false; return; }
+  if (!privateKey) { showErr('Enter a private key to encode.'); decoderEl.value=''; isUpdating=false; return; }
+  
+  const targetLen = plainText.length;
+  if (currentPubKey.length < targetLen)
+    currentPubKey += genPublicKey(targetLen - currentPubKey.length);
+  else if (currentPubKey.length > targetLen)
+    currentPubKey = currentPubKey.slice(0, targetLen);
+    
+  const res = await pentaEncode(plainText, privateKey, currentPubKey);
+  if (res.unsupportedChars) {
+    const labels = res.unsupportedChars.map(c => c===' '?'SPACE':c==='\n'?'NEWLINE':c).join(' ');
+    showErr('Unsupported character(s): <b><span style="color:#ffd700">[</span> '+labels+' <span style="color:#ffd700">]</span></b>');
+    decoderEl.value='';
+  } else if (res.pvkError) {
+    showErr('Private key contains unsupported characters.'); decoderEl.value='';
+  } else if (res.rangeError!==undefined) {
+    showErr('Encoding overflow (sum='+res.rangeError+'). Try a different private/public key configuration.'); decoderEl.value='';
+  } else {
+    decoderEl.value = formatOutput(currentPubKey, res.ok);
+  }
+  isUpdating = false;
+}
+
+async function onCodeChange() {
+  if (isUpdating) return;
+  isUpdating = true;
+  clearErr();
+  const raw        = decoderEl.value;
+  const privateKey = pvkInput.value;
+  if (!raw)        { encoderEl.value=''; isUpdating=false; return; }
+  if (!privateKey) { showErr('Enter the private key to decode.'); isUpdating=false; return; }
+  const parsed = parseInput(raw);
+  if (!parsed || !parsed.pubKey || !parsed.encrypted) {
+    showErr('Invalid format. Expected: public key on line 1, encrypted text on line 2.');
+    isUpdating=false; return;
+  }
+  const { pubKey, encrypted } = parsed;
+  
+  const res = await pentaDecode(encrypted, privateKey, pubKey);
+  if (res.invalidSymbols || res.validationError || res.formatError) {
+    showErr('Invalid pentacode data — wrong private key or corrupted transmission text.');
+    encoderEl.value='';
+  } else if (res.pvkError) {
+    showErr('Private key contains unsupported characters.'); encoderEl.value='';
+  } else if (res.pbkError) {
+    showErr('Public key contains unsupported characters.'); encoderEl.value='';
+  } else if (res.rangeError) {
+    showErr('Decoding calculations returned out-of-range character values. Verify your private key.'); encoderEl.value='';
+  } else {
+    encoderEl.value = res.ok;
+    currentPubKey = pubKey;
+  }
+  isUpdating = false;
+}
+
+encoderEl.addEventListener('input', onPlainTextChange);
+decoderEl.addEventListener('input', onCodeChange);
+pvkInput.addEventListener('input', () => {
+  currentPubKey = '';
+  if (encoderEl.value) onPlainTextChange();
+  else if (decoderEl.value) onCodeChange();
+});
+
+copyBtn.addEventListener('click', () => {
+  navigator.clipboard.writeText(decoderEl.value)
+    .then(() => { copyNote.style.display='block'; setTimeout(()=>{copyNote.style.display='none';},3000); })
+    .catch(err => console.error('Failed to copy:', err));
+});
+</script>
+</body>
+</html>
