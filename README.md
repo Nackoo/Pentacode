@@ -23,3 +23,15 @@ MAP2 example:
 | 83   | Q   | 84   | Л   | 85   | К   | 86   | ¡   | 87   | Т   | 88   | Н   | 89   | S   | 90   | ¥   | 91   | X   | 92   | c   | 93   | Ц   | 94   | α   | 95   | κ   | 96   | V   | 97   | Ж   | 98   | ψ   | 99   | x   | 100  | €   | 101  | С   | 102  | N   | 103  | ≈   | 104  | :   | 105  | ɠ   | 106  | Þ   | 107  | &   | 108  | t   | 109  | 8   | 110  | s   | 111  | @   | 112  | v   | 113  | ζ   | 114  | k   | 115  | P   | 116  | τ   | 117  | Х   | 118  | ł   | 119  | θ   | 120  | ε   | 121  | M   | 122  | ɓ   | 205  | Ճ   |
 | 123  | +   | 124  | .   | 125  | ρ   | 126  | Е   | 127  | G   | 128  | Ч   | 129  | δ   | 130  | ]   | 131  | o   | 132  | ν   | 133  | Ы   | 134  | ±   | 135  | -   | 136  | А   | 137  | 0   | 138  | Ф   | 139  | m   | 140  | y   | 141  | ?   | 142  | µ   | 143  | ¬   | 144  | η   | 145  | `   | 146  | {   | 147  | q   | 148  | Ш   | 149  | H   | 150  | £   | 151  | ξ   | 152  | [   | 153  | 9   | 154  | )   | 155  | ○   | 156  | Z   | 157  | П   | 158  | J   | 159  | '   | 160  | B   | 161  | Ь   | 162  | В   | 206  | Մ   |
 | 163  | U   | 164  | C   | 165  | λ   | 166  | r   | 167  | Щ   | 168  | ₽   | 169  | ™   | 170  | 3   | 171  | Б   | 172  | $   | 173  | h   | 174  | ©   | 175  | Р   | 176  | Д   | 177  | °   | 178  | 2   | 179  | l   | 180  | ∆   | 181  | /   | 182  | ɜ   | 183  | ι   | 184  | u   | 185  | μ   | 186  | ɡ   | 187  | Ա   | 188  | Բ   | 189  | Գ   | 190  | Դ   | 191  | Ե   | 192  | Զ   | 193  | Է   | 194  | Ը   | 195  | Թ   | 196  | Ժ   | 197  | Ի   | 198  | Լ   | 199  | Խ   | 200  | Ծ   | 201  | Կ   | 202  | Հ   | 207  | Յ   |
+
+### The exact amount of ciphertext symbols per plaintext character is deterministic to the private key:
+- A SHA-256 hash stream seeded with (privateKey + "_lengths") produces byte values (0-255).
+- Formula: Width = (streamByte % 3) + 1  --> Outputs exactly 1, 2, or 3 symbols.
+- Each sub-symbol uses: subSum = BaseSum + s (where s ranges from 0 to Width - 1).
+
+Length Stream example (derived from "katze"):
+
+Position 0: Byte 184 --> (184 % 3) + 1 = 2 symbols
+Position 1: Byte 52  --> (52 % 3)  + 1 = 2 symbols
+Position 2: Byte 213 --> (213 % 3) + 1 = 1 symbol
+Position 3: Byte 90  --> (90 % 3)  + 1 = 1 symbol
