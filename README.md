@@ -11,7 +11,7 @@ An experimental encryption mechanism.
 | v    | 22  | w    | 23  | x    | 24  | y    | 25  | z    | 26  | A    | 27  | B    | 28  |
 | C    | 29  | D    | 30  | E    | 31  | F    | 32  | G    | 33  | H    | 34  | I    | 35  |
 
-### [MAP2] DEFINE NUMBERS FROM (1*3) 3 TO (69*3) 207 as a single character.
+### [MAP2] DEFINE NUMBERS FROM (1x3) 3 TO (69x3) 207 as a single character.
 ### MAP2 is shuffled dynamically from the private key.
 
 MAP2 example:
