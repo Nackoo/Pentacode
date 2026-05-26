@@ -1,6 +1,6 @@
 # PENTACODE — Cryptographic Security Objectives
 
-This document outlines the theoretical security advantages and architectural mechanics implemented in Pentacode V.3.0 to protect encrypted payloads against contemporary cryptanalysis techniques.
+This document outlines the theoretical security advantages and architectural mechanics implemented in Pentacode to protect encrypted payloads against contemporary cryptanalysis techniques.
 
 ---
 
