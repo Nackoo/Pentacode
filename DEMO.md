@@ -258,98 +258,98 @@ As String: `yimnnwa d en ltgaehalphoirel is`
 
 As String: `yidm gneaonneiw hra ae llltp his`
 
-Character 'y' (Map1 Value: 60) mapped to symbols [პ]
-via target count 1 (Sum base: 193)
+`Character 'y' (Map1 Value: 60) mapped to symbols [პ]
+via target count 1 (Sum base: 193)`
 
-Character 'i' (Map1 Value: 25) mapped to symbols [`]
-via target count 1 (Sum base: 116)
+`Character 'i' (Map1 Value: 25) mapped to symbols [`]
+via target count 1 (Sum base: 116)`
 
-Character 'd' (Map1 Value: 16) mapped to symbols [χ, δ]
-via target count 2 (Sum base: 72)
+`Character 'd' (Map1 Value: 16) mapped to symbols [χ, δ]
+via target count 2 (Sum base: 72)`
 
-Character 'm' (Map1 Value: 50) mapped to symbols [З, П]
-via target count 2 (Sum base: 240)
+`Character 'm' (Map1 Value: 50) mapped to symbols [З, П]
+via target count 2 (Sum base: 240)`
 
-Character ' ' (Map1 Value: 73) mapped to symbols [+]
-via target count 1 (Sum base: 189)
+`Character ' ' (Map1 Value: 73) mapped to symbols [+]
+via target count 1 (Sum base: 189)`
 
-Character 'g' (Map1 Value: 72) mapped to symbols [ժ, 5]
-via target count 2 (Sum base: 223)
+`Character 'g' (Map1 Value: 72) mapped to symbols [ժ, 5]
+via target count 2 (Sum base: 223)`
 
-Character 'n' (Map1 Value: 89) mapped to symbols [უ]
-via target count 1 (Sum base: 227)
+`Character 'n' (Map1 Value: 89) mapped to symbols [უ]
+via target count 1 (Sum base: 227)`
 
-Character 'e' (Map1 Value: 24) mapped to symbols [ა, ~]
-via target count 2 (Sum base: 49)
+`Character 'e' (Map1 Value: 24) mapped to symbols [ა, ~]
+via target count 2 (Sum base: 49)`
 
-Character 'a' (Map1 Value: 36) mapped to symbols [6]
-via target count 1 (Sum base: 160)
+`Character 'a' (Map1 Value: 36) mapped to symbols [6]
+via target count 1 (Sum base: 160)`
 
-Character 'o' (Map1 Value: 75) mapped to symbols [ի, Թ]
-via target count 2 (Sum base: 180)
+`Character 'o' (Map1 Value: 75) mapped to symbols [ի, Թ]
+via target count 2 (Sum base: 180)`
 
-Character 'n' (Map1 Value: 89) mapped to symbols [¬]
-via target count 1 (Sum base: 274)
+`Character 'n' (Map1 Value: 89) mapped to symbols [¬]
+via target count 1 (Sum base: 274)`
 
-Character 'n' (Map1 Value: 89) mapped to symbols [Օ, ÷]
-via target count 2 (Sum base: 178)
+`Character 'n' (Map1 Value: 89) mapped to symbols [Օ, ÷]
+via target count 2 (Sum base: 178)`
 
-Character 'e' (Map1 Value: 24) mapped to symbols [Ч, ი]
-via target count 2 (Sum base: 51)
+`Character 'e' (Map1 Value: 24) mapped to symbols [Ч, ი]
+via target count 2 (Sum base: 51)`
 
-Character 'i' (Map1 Value: 25) mapped to symbols [ք]
-via target count 1 (Sum base: 176)
+`Character 'i' (Map1 Value: 25) mapped to symbols [ք]
+via target count 1 (Sum base: 176)`
 
-Character 'w' (Map1 Value: 48) mapped to symbols [o]
-via target count 1 (Sum base: 124)
+`Character 'w' (Map1 Value: 48) mapped to symbols [o]
+via target count 1 (Sum base: 124)`
 
-Character ' ' (Map1 Value: 73) mapped to symbols [π, դ]
-via target count 2 (Sum base: 256)
+`Character ' ' (Map1 Value: 73) mapped to symbols [π, դ]
+via target count 2 (Sum base: 256)`
 
-Character 'h' (Map1 Value: 65) mapped to symbols [ռ]
-via target count 1 (Sum base: 151)
+`Character 'h' (Map1 Value: 65) mapped to symbols [ռ]
+via target count 1 (Sum base: 151)`
 
-Character 'r' (Map1 Value: 74) mapped to symbols [√]
-via target count 1 (Sum base: 183)
+`Character 'r' (Map1 Value: 74) mapped to symbols [√]
+via target count 1 (Sum base: 183)`
 
-Character 'a' (Map1 Value: 36) mapped to symbols [ł, E]
-via target count 2 (Sum base: 196)
+`Character 'a' (Map1 Value: 36) mapped to symbols [ł, E]
+via target count 2 (Sum base: 196)`
 
-Character ' ' (Map1 Value: 73) mapped to symbols [α]
-via target count 1 (Sum base: 147)
+`Character ' ' (Map1 Value: 73) mapped to symbols [α]
+via target count 1 (Sum base: 147)`
 
-Character 'a' (Map1 Value: 36) mapped to symbols [გ, რ]
-via target count 2 (Sum base: 169)
+`Character 'a' (Map1 Value: 36) mapped to symbols [გ, რ]
+via target count 2 (Sum base: 169)`
 
-Character 'e' (Map1 Value: 24) mapped to symbols [$, `]
-via target count 2 (Sum base: 115)
+`Character 'e' (Map1 Value: 24) mapped to symbols [$, ']
+via target count 2 (Sum base: 115)`
 
-Character ' ' (Map1 Value: 73) mapped to symbols [Ц]
-via target count 1 (Sum base: 129)
+`Character ' ' (Map1 Value: 73) mapped to symbols [Ц]
+via target count 1 (Sum base: 129)`
 
-Character 'l' (Map1 Value: 17) mapped to symbols [ո, Ю]
-via target count 2 (Sum base: 207)
+`Character 'l' (Map1 Value: 17) mapped to symbols [ո, Ю]
+via target count 2 (Sum base: 207)`
 
-Character 'l' (Map1 Value: 17) mapped to symbols [Ո]
-via target count 1 (Sum base: 133)
+`Character 'l' (Map1 Value: 17) mapped to symbols [Ո]
+via target count 1 (Sum base: 133)`
 
-Character 'l' (Map1 Value: 17) mapped to symbols [კ, გ]
-via target count 2 (Sum base: 168)
+`Character 'l' (Map1 Value: 17) mapped to symbols [კ, გ]
+via target count 2 (Sum base: 168)`
 
-Character 't' (Map1 Value: 10) mapped to symbols [Ի]
-via target count 1 (Sum base: 148)
+`Character 't' (Map1 Value: 10) mapped to symbols [Ի]
+via target count 1 (Sum base: 148)`
 
-Character 'p' (Map1 Value: 9) mapped to symbols [წ]
-via target count 1 (Sum base: 34)
+`Character 'p' (Map1 Value: 9) mapped to symbols [წ]
+via target count 1 (Sum base: 34)`
 
-Character ' ' (Map1 Value: 73) mapped to symbols [E, Դ]
-via target count 2 (Sum base: 197)
+`Character ' ' (Map1 Value: 73) mapped to symbols [E, Դ]
+via target count 2 (Sum base: 197)`
 
-Character 'h' (Map1 Value: 65) mapped to symbols [რ]
-via target count 1 (Sum base: 170)
+`Character 'h' (Map1 Value: 65) mapped to symbols [რ]
+via target count 1 (Sum base: 170)`
 
-Character 'i' (Map1 Value: 25) mapped to symbols [վ, ს]
-via target count 2 (Sum base: 210)
+`Character 'i' (Map1 Value: 25) mapped to symbols [վ, ს]
+via target count 2 (Sum base: 210)`
 
-Character 's' (Map1 Value: 102) mapped to symbols [է]
-via target count 1 (Sum base: 191)
+`Character 's' (Map1 Value: 102) mapped to symbols [է]
+via target count 1 (Sum base: 191)`
