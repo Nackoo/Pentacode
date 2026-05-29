@@ -22,13 +22,13 @@ Pentacode uses two distinct character sets to hide your message:
 Before any text is scrambled, Pentacode uses your Private Key to build completely 
 randomized, custom translation alphabets. 
 
-### STEP 1.1: CREATING THE CRYPTO-STREAM
+### step 1.1: creating the crypti-stream
 The system takes your Private Key (e.g., "katze") and runs it through the 
 secure SHA-256 algorithm. It chains the output hashes together to form a long, 
 unpredictable, but reproducible stream of numbers.
   Private Key ---> [ SHA-256 ] ---> [ Endless Stream of Numbers ]
 
-### STEP 1.2: SHUFFLING MAP1
+### step 1.2: shuffling MAP1
 1. It takes the standard 99 input characters.
 2. It uses the stream of numbers to perform a "Fisher-Yates Shuffle" 
    (shuffling them like a deck of cards so their order changes completely).
@@ -42,7 +42,7 @@ unpredictable, but reproducible stream of numbers.
   Values:     x=3,   m=4,   a=5,   p=6
 ```
 
-### STEP 1.3: SHUFFLING MAP2
+### step 1.3: shuffling MAP2
 1. It takes the 297 output symbols.
 2. It runs a completely separate Fisher-Yates Shuffle using a different part of the key stream.
 3. Every shuffled symbol is assigned a static numerical value starting from 3: (Position + 3).
@@ -61,11 +61,11 @@ unpredictable, but reproducible stream of numbers.
 Now, your plain text message is broken apart geometrically so it's no longer linear.
 Let's use the Plain Text: "SECRET MESSAGE" and Private Key: "BACON"
 
-### STEP 2.1: DETERMINING GRID SIZE
+### step 2.1: determining grid size
 The length of your Private Key decides how wide the grid is. 
 "BACON" has 5 letters, so our grid width (Columns) is 5.
 
-### STEP 2.2: FILLING THE GRID
+### step 2.2: filling the grid
 The message is written straight across the grid, row by row. Empty slots at the 
 end are padded with spaces.
 ```
@@ -76,7 +76,7 @@ end are padded with spaces.
   Row 3: [ ][ ][ ][ ][ ]  (Padded rows/cells)
 ```
 
-### STEP 2.3: MULTIPLICATIVE ROW SHIFTING
+### step 2.3: multiplicative row shifting
 Each row is slid to the left. The distance it slides depends on the row index 
 multiplied by the Private Key length.
 * Row 0: Shifts by (5 * 1) % 5 = 0 slots  -> [S][E][C][R][E]
@@ -88,7 +88,7 @@ Let's look at a generic visual representation of a row shifting left:
   After Shift:  [ C ][ D ][ E ][ A ][ B ]  (Slid 2 spaces left)
 ```
 
-### STEP 2.4: ROW & COLUMN SHUFFLING (PERMUTATIONS)
+### step 2.4: row & column shuffling (permutations)
 The system looks at the alphabetical order of the letters in your Private Key ("BACON").
 Alphabetical Rank of "BACON" -> B=1, A=0, C=2, O=4, N=3  --> Order: [1, 0, 2, 4, 3]
 
@@ -102,7 +102,7 @@ The system completely swaps the physical columns and rows matching this exact ra
   After (Col Swapped): [E][S][C][E][R]
 ```
 
-### STEP 2.5: THE ANTI-DIAGONAL READOUT
+### step 2.5: the anti-diagonal readout
 Instead of reading your grid left-to-right, Pentacode reads the letters in a 
 zig-zag diagonal path starting from the top-right corner down to the bottom-left.
 
@@ -120,19 +120,19 @@ zig-zag diagonal path starting from the top-right corner down to the bottom-left
 
 Now that your characters are completely shuffled, the system turns them into Map 2 symbols.
 
-### STEP 3.1: CHARACTER TO VALUE (MAP1)
+### step 3.1: character to value (MAP1)
 The engine looks at each shuffled letter and pulls its number from the custom MAP1 we built.
 ```
   Letter 'E' ---> Map1 Value = 14
 ```
 
-### STEP 3.2: DYNAMIC LENGTH SELECTION
+### step 3.2: dynamic length selection
 The system pulls a number from a special key stream (`_lengths`). 
 If the number is Even, this letter will turn into **1 Symbol**.
 If the number is Odd, this letter will turn into **2 Symbols**.
 This means the exact same letter will have completely different lengths throughout the message.
 
-### STEP 3.3: THE SHIFT MATH
+### step 3.3: the shift math
 To find the final symbol, the system adds three things together:
 ```
   (MAP1 Character Value) + (Private Key Character Shift) + (Public Key Character Shift)
@@ -144,7 +144,7 @@ To find the final symbol, the system adds three things together:
   * Base Target Sum    = 14 + 8 + 5 = 27
 ```
 
-### STEP 3.4: GENERATING THE SYMBOL
+### step 3.4: generating the symbol
 * If 1 Symbol was decided: The system looks up the symbol at value 27 in MAP2 (e.g., '√').
 * If 2 Symbols were decided: It grabs value 27 AND value 28 from MAP2 (e.g., '√' and 'æ').
 
