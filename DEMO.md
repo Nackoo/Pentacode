@@ -154,6 +154,8 @@ As String: `ltmhgpe ii ni lodsenaalaew nryh `
 
 As String: `ltimidh segnewpin e an larolyah `
 
+---
+
 **▶ AFTER OPERATION: [GRID CIPHER: ROUND 4 - MULTIPLICATIVE ROW SHIFTS]**
 ```
 [d][h][ ][l][t][i][m][i]
