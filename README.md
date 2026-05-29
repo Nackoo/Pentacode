@@ -6,7 +6,7 @@
 /_/    \___/_/ /_/\__/\__,_/\___/\____/\__,_/\___/ 
 ```    
 
-# OVERVIEW: THE TWO CORE ALPHABETS
+## OVERVIEW: THE TWO CORE ALPHABETS
 
 Pentacode uses two distinct character sets to hide your message:
 
@@ -17,7 +17,7 @@ Pentacode uses two distinct character sets to hide your message:
 
 ---
 
-# PHASE 1: THE INITIAL SETUP (BUILDING MAP1 & MAP2)
+## PHASE 1: THE INITIAL SETUP (BUILDING MAP1 & MAP2)
 
 Before any text is scrambled, Pentacode uses your Private Key to build completely 
 randomized, custom translation alphabets. 
@@ -26,9 +26,7 @@ randomized, custom translation alphabets.
 The system takes your Private Key (e.g., "katze") and runs it through the 
 secure SHA-256 algorithm. It chains the output hashes together to form a long, 
 unpredictable, but reproducible stream of numbers.
-```
   Private Key ---> [ SHA-256 ] ---> [ Endless Stream of Numbers ]
-```
 
 ### STEP 1.2: SHUFFLING MAP1
 1. It takes the standard 99 input characters.
@@ -58,7 +56,7 @@ unpredictable, but reproducible stream of numbers.
 
 ---
 
-# PHASE 2: THE GRID CIPHER (SCRAMBLING THE ORDER)
+## PHASE 2: THE GRID CIPHER (SCRAMBLING THE ORDER)
 
 Now, your plain text message is broken apart geometrically so it's no longer linear.
 Let's use the Plain Text: "SECRET MESSAGE" and Private Key: "BACON"
@@ -118,7 +116,7 @@ zig-zag diagonal path starting from the top-right corner down to the bottom-left
 
 ---
 
-# PHASE 3: MATHEMATICAL SYMBOL ENCODING
+## PHASE 3: MATHEMATICAL SYMBOL ENCODING
 
 Now that your characters are completely shuffled, the system turns them into Map 2 symbols.
 
@@ -152,7 +150,7 @@ To find the final symbol, the system adds three things together:
 
 ---
 
-# PHASE 4: THE FINAL OUTPUT PACKET
+## PHASE 4: THE FINAL OUTPUT PACKET
 
 1. The user's system generates a completely random, unique 20-character string 
    called the **Public Key** (e.g., `aB3kL9pQWz2xCvBnM1tY`).
