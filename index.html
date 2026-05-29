@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -100,7 +101,7 @@ span { color: grey; }
     </aside>
     <div id="divider"></div>
     <aside id="output-section">
-        <div class="panel-label">pentacode v.3 <span style="color:#444;font-size:10px;">— public key on first line, variable symbols on second</span></div>
+        <div class="panel-label">Pentacode <span style="color:#444;font-size:10px;">— first 20 chars = public key, rest = ciphertext</span></div>
         <div id="copyNotification"><svg style="margin-top:-10px;margin-bottom:-7px;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/></svg> Copied!</div>
         <div id="error-message"></div>
         <textarea id="decoder" placeholder="paste pentacode here to decode..."></textarea>
@@ -109,47 +110,44 @@ span { color: grey; }
 </div>
 
 <script>
-// MAP1 Defining inputs
-const MAP1_ENC = {
-  'a':1,'b':2,'c':3,'d':4,'e':5,'f':6,'g':7,'h':8,'i':9,'j':10,
-  'k':11,'l':12,'m':13,'n':14,'o':15,'p':16,'q':17,'r':18,'s':19,'t':20,
-  'u':21,'v':22,'w':23,'x':24,'y':25,'z':26,
-  'A':27,'B':28,'C':29,'D':30,'E':31,'F':32,'G':33,'H':34,'I':35,'J':36,
-  'K':37,'L':38,'M':39,'N':40,'O':41,'P':42,'Q':43,'R':44,'S':45,'T':46,
-  'U':47,'V':48,'W':49,'X':50,'Y':51,'Z':52,
-  '0':53,'1':54,'2':55,'3':56,'4':57,'5':58,'6':59,'7':60,'8':61,'9':62,
-  ' ':63,'?':64,"'":65,'"':66,'.':67,',':68,'\n':69
-};
-const MAP1_DEC = {};
-for (const [ch,n] of Object.entries(MAP1_ENC)) MAP1_DEC[n] = ch;
-
-const MAP2_BASE = [
-  '\u03c0','\u03c3','\u0413','\u042d','\u221a','*','\u201c','#',
-  'E','O','L','R','f','n','\u0423','w','\u042e','\u0252',
-  'Y','i','\u221e','T','\u2202','\u0254','\u03c6','\u00a7',
-  '\u025b','\u0257','\u00bf','6','F','\u03c9','7','5','^',
-  '\u03bf','~','}','<',';','\u2260','\u2211','\u0258','\u042f',
-  '\u0417','z','I','>','%','\u025e','\u00a2','a','\u03c7',
-  '\u00f7','\u03b3','\u0251','p','b','g','_','e','\u222b',
-  '\u0262','\u00f8','\u0255','|','\u03b2','\u0418','\u00e6',
-  '\u041e','4','(','\u025f','\u03c5','\u00ae','\u0419','\u00d7',
-  'j','!','Q','\u041b','\u041a','\u00a1','\u0422','\u041d',
-  'S','\u00a5','X','c','\u0426','\u03b1','\u03ba','V','\u0416',
-  '\u03c8','x','\u20ac','\u0421','N','\u2248',':','\u0260',
-  '\u00de','&','t','8','s','@','v','\u03b6','k','P','\u03c4',
-  '\u0425','\u0142','\u03b8','\u03b5','M','\u0253','+','.',
-  '\u03c1','\u0415','G','\u0427','\u03b4',']','o','\u03bd',
-  '\u042b','\u00b1','-','\u0410','0','\u0424','m','y','?',
-  '\u00b5','\u00ac','\u03b7','`','{','q','\u0428','H','\u00a3',
-  '\u03be','[','9',')','\u25cb','Z','\u041f','J','\u2019','B',
-  '\u042c','\u0412','U','C','\u03bb','r','\u0429','\u20bd',
-  '\u2122','3','\u0411','$','h','\u00a9','\u0420','\u0414',
-  '\u00b0','2','l','\u2206','/','\u025c','\u03b9','u','\u03bc',
-  '\u0261',
-  '\u0531','\u0532','\u0533','\u0534','\u0535','\u0536','\u0537',
-  '\u0538','\u0539','\u053a','\u053b','\u053c','\u053d','\u053e',
-  '\u053f','\u0540','\u0541','\u0542','\u0543','\u0544','\u0545'
+// MAP1 Base characters (order defines identity; numeric values are assigned after key-shuffle)
+const MAP1_BASE_CHARS = [
+  'a','b','c','d','e','f','g','h','i','j',
+  'k','l','m','n','o','p','q','r','s','t',
+  'u','v','w','x','y','z',
+  'A','B','C','D','E','F','G','H','I','J',
+  'K','L','M','N','O','P','Q','R','S','T',
+  'U','V','W','X','Y','Z',
+  '0','1','2','3','4','5','6','7','8','9',
+  ' ',"'",'.',',','\n',
+  '!','#','$','%','&','(',')','*','+','-','/',':', ';','<','=','>','?','@','[','\\',']','^','_','`','{','|','}','~','"'
 ];
+
+// Builds MAP1 enc/dec maps with private-key-determined shuffle + offset,
+// mirroring the same pattern used by buildMAP2.
+async function buildMAP1(privateKey) {
+  const stream = await deriveCryptoStream(privateKey + "_map1", MAP1_BASE_CHARS.length + 1);
+  const chars = MAP1_BASE_CHARS.slice();
+
+  // Fisher-Yates shuffle driven by key stream (same as MAP2)
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = (stream[i] + i) % (i + 1);
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+
+  // Key-derived offset so 'a' (or whichever char lands at index 0) != always 1
+  const offset = (stream[chars.length] % 7) + 1; // offset in range 1–7
+
+  const enc = {}, dec = {};
+  for (let i = 0; i < chars.length; i++) {
+    const val = i + offset;
+    enc[chars[i]] = val;
+    dec[val] = chars[i];
+  }
+  return { enc, dec };
+}
+
+const MAP2_BASE = ["π","σ","Г","Э","√","*","“","#","E","O","L","R","f","n","У","w","Ю","ɒ","Y","i","∞","T","∂","ɔ","φ","§","ɛ","ɗ","¿","6","F","ω","7","5","^","ο","~","}","<",";","≠","∑","ɘ","Я","З","z","I",">","%","ɞ","¢","a","χ","÷","γ","ɑ","p","b","g","_","e","∫","ɢ","ø","ɕ","|","β","И","æ","О","4","(","ɟ","υ","®","Й","×","j","!","Q","Л","К","¡","Т","Н","S","¥","X","c","Ц","α","κ","V","Ж","ψ","x","€","С","N","≈",":","ɠ","Þ","&","t","8","s","@","v","ζ","k","P","τ","Х","ł","θ","ε","M","ɓ","+",".","ρ","Е","G","Ч","δ","]","o","ν","Ы","±","-","А","0","Ф","m","y","?","µ","¬","η","`","{","q","Ш","H","£","ξ","[","9",")","○","Z","П","J","’","B","Ь","В","U","C","λ","r","Щ","₽","™","3","Б","$","h","©","Р","Д","°","2","l","∆","/","ɜ","ι","u","μ","ɡ","Ա","Բ","Գ","Դ","Ե","Զ","Է","Ը","Թ","Ժ","Ի","Լ","Խ","Ծ","Կ","Հ","Ձ","Ղ","Ճ","Մ","Յ","Ն","Շ","Ո","Չ","Պ","Ջ","Ռ","Ս","Վ","Տ","Ր","Ց","Ւ","Փ","Ք","Օ","Ֆ","ա","բ","գ","դ","ե","զ","է","ը","թ","ժ","ի","լ","խ","ծ","կ","հ","ձ","ղ","ճ","մ","յ","ն","շ","ո","չ","պ","ջ","ռ","ս","վ","տ","ր","ց","ւ","փ","ք","օ","ֆ","ა","ბ","გ","დ","ე","ვ","ზ","თ","ი","კ","ლ","მ","ნ","ო","პ","ჟ","რ","ს","ტ","უ","ფ","ქ","ღ","ყ","შ","ჩ","ც","ძ","წ","ჭ","ხ","ჯ","ჰ","Α","Β"];
 
 // Generates a predictable stream of values derived purely from the private key seed
 // via SHA-256 cycles. This handles both shuffling and our variable-width lengths.
@@ -195,99 +193,348 @@ function genPublicKey(len) {
   return Array.from(arr).map(b => PUB_CHARS[b % 62]).join('');
 }
 
-function toM1(str) { return [...str].map(ch => MAP1_ENC[ch] !== undefined ? MAP1_ENC[ch] : null); }
+function toM1(str, map1enc) { return [...str].map(ch => map1enc[ch] !== undefined ? map1enc[ch] : null); }
 function cycle(arr, len) { const o=[]; for(let i=0;i<len;i++) o.push(arr[i%arr.length]); return o; }
 
-// ENCODE V.3 (With private-key deterministic symbol lengths)
-async function pentaEncode(plainText, privateKey, publicKey) {
-  const ptN  = toM1(plainText);
-  const pvkN = toM1(privateKey);
-  const pbkN = toM1(publicKey);
-  
-  const badPT = new Set();
-  ptN.forEach((n,i) => { if(n===null) badPT.add(plainText[i]); });
-  if (badPT.size) return { unsupportedChars: [...badPT] };
-  if (pvkN.some(n=>n===null)) return { pvkError: true };
-  
-  const map2 = await buildMAP2(privateKey);
-  const n = plainText.length;
-  const pvkC = cycle(pvkN, n);
-  
-  // Advanced Tweak: Derive a deterministic layout stream for positions
-  const lenStream = await deriveCryptoStream(privateKey + "_lengths", n);
-  
-  const result = [];
-  for (let i = 0; i < n; i++) {
-    // Deterministic width: turns byte into a length value of 1, 2, or 3 symbols
-    const targetSymbolCount = (lenStream[i] % 3) + 1; 
-    
-    // Base encryption math
-    const baseSum = ptN[i] + pvkC[i] + pbkN[i];
-    
-    for (let s = 0; s < targetSymbolCount; s++) {
-      // Modify each subsequent split sub-symbol slightly but deterministically
-      const subSum = baseSum + s; 
-      if (map2.enc[subSum] === undefined) return { rangeError: subSum };
-      result.push(map2.enc[subSum]);
+// Grid cipher helpers
+
+function gridDims(keyLen) {
+  const X = keyLen;
+  const half = keyLen / 2;
+  const Y = Number.isInteger(half) ? half : Math.floor(half) + 0.5;
+  const size = Math.min(Math.round(X + Y), 8);
+  return size;
+}
+
+function keyRowOrder(key) {
+  const chars = [...key].map((c, i) => ({ c, ascii: c.charCodeAt(0), i }));
+  const sorted = chars.slice().sort((a, b) => a.ascii - b.ascii || a.i - b.i);
+  return sorted.map(s => s.i);
+}
+
+function keyColOrder(key) {
+  const chars = [...key].map((c, i) => ({ c, ascii: c.charCodeAt(0), i }));
+  const sorted = chars.slice().sort((a, b) => a.ascii - b.ascii || a.i - b.i);
+  const rank = new Array(key.length);
+  sorted.forEach((s, r) => { rank[s.i] = r; });
+  return rank;
+}
+
+function deriveSubkey(key) {
+  const kLen = key.length;
+  const indices = [...key].map(c => c.charCodeAt(0) % kLen);
+  return indices.map(idx => key[idx]).join('');
+}
+
+function fillGrid(text, W) {
+  const rows = [];
+  let pos = 0;
+  while (pos < text.length) {
+    const row = [];
+    for (let c = 0; c < W; c++) {
+      row.push(pos < text.length ? text[pos++] : ' ');
+    }
+    rows.push(row);
+  }
+  return rows;
+}
+
+function applyRowShifts(grid, keyLen, W) {
+  return grid.map((row, r) => {
+    const shift = (keyLen * (r + 1)) % W;
+    return [...row.slice(shift), ...row.slice(0, shift)];
+  });
+}
+
+function applyRowPerm(grid, rowOrder, numRows) {
+  const perm = [];
+  const used = new Set();
+  for (let i = 0; i < rowOrder.length && perm.length < numRows; i++) {
+    const r = rowOrder[i] % numRows;
+    if (!used.has(r)) { perm.push(r); used.add(r); }
+  }
+  for (let r = 0; r < numRows; r++) {
+    if (!used.has(r)) { perm.push(r); used.add(r); }
+  }
+  return perm.map(srcRow => grid[srcRow].slice());
+}
+
+function buildColPerm(colRank, W) {
+  const perm = [];
+  const used = new Set();
+  for (let i = 0; i < colRank.length && perm.length < W; i++) {
+    const c = colRank[i] % W;
+    if (!used.has(c)) { perm.push(c); used.add(c); }
+  }
+  for (let c = 0; c < W; c++) {
+    if (!used.has(c)) { perm.push(c); used.add(c); }
+  }
+  return perm;
+}
+
+function applyColPerm(grid, colRank, W) {
+  const perm = buildColPerm(colRank, W);
+  return grid.map(row => {
+    const newRow = new Array(W).fill(' ');
+    for (let c = 0; c < W; c++) newRow[perm[c]] = row[c];
+    return newRow;
+  });
+}
+
+function readDiagonal(grid, W, H) {
+  const out = [];
+  for (let d = 0; d < H + W - 1; d++) {
+    for (let r = 0; r < H; r++) {
+      const c = d - r;
+      if (c >= 0 && c < W) {
+        out.push(grid[r][c]);
+      }
     }
   }
+  return out;
+}
+
+function inverseColPerm(grid, colRank, W) {
+  const perm = buildColPerm(colRank, W);
+  return grid.map(row => {
+    const newRow = new Array(W).fill(' ');
+    for (let c = 0; c < W; c++) newRow[c] = row[perm[c]];
+    return newRow;
+  });
+}
+
+function inverseRowPerm(grid, rowOrder, numRows) {
+  const perm = [];
+  const used = new Set();
+  for (let i = 0; i < rowOrder.length && perm.length < numRows; i++) {
+    const r = rowOrder[i] % numRows;
+    if (!used.has(r)) { perm.push(r); used.add(r); }
+  }
+  for (let r = 0; r < numRows; r++) {
+    if (!used.has(r)) { perm.push(r); used.add(r); }
+  }
+  const result = new Array(numRows);
+  for (let r = 0; r < numRows; r++) result[perm[r]] = grid[r].slice();
+  return result;
+}
+
+function inverseRowShifts(grid, keyLen, W) {
+  return grid.map((row, r) => {
+    const shift = (keyLen * (r + 1)) % W;
+    const inv = (W - shift) % W;
+    return [...row.slice(inv), ...row.slice(0, inv)];
+  });
+}
+
+function writeDiagonal(chars, W, H) {
+  const grid = Array.from({ length: H }, () => new Array(W).fill(' '));
+  let idx = 0;
+  for (let d = 0; d < H + W - 1; d++) {
+    for (let r = 0; r < H; r++) {
+      const c = d - r;
+      if (c >= 0 && c < W && idx < chars.length) {
+        grid[r][c] = chars[idx++];
+      }
+    }
+  }
+  return grid;
+}
+
+function gridCipher(chars, key) {
+  let currentChars = [...chars];
+  let currentKey = key;
+  const rounds = 5; // Set explicitly to 5 rounds
+
+  for (let i = 0; i < rounds; i++) {
+    const W = gridDims(currentKey.length);
+    const effectiveW = W; 
+
+    // STEP 0: Pack text into the starting grid for this round
+    const grid = fillGrid(currentChars.join(''), effectiveW);
+    const H = grid.length;
+    
+    // Log the matrix layout at the very start of this specific round
+    prettyLog(grid, `Grid Cipher: Round ${i + 1} - Initial Packed Matrix (Before Scrambling)`);
+
+    // STEP 1: Apply multiplicative row shifts
+    const shifted = applyRowShifts(grid, currentKey.length, effectiveW);
+    prettyLog(shifted, `Grid Cipher: Round ${i + 1} - Multiplicative Row Shifts`);
+
+    // STEP 2: Apply row swaps
+    const rowPerm = keyRowOrder(currentKey);
+    const rowPermuted = applyRowPerm(shifted, rowPerm, H);
+    prettyLog(rowPermuted, `Grid Cipher: Round ${i + 1} - Row Permutations`);
+
+    // STEP 3: Apply column swaps
+    const colRank = keyColOrder(currentKey);
+    const colPermuted = applyColPerm(rowPermuted, colRank, effectiveW);
+    prettyLog(colPermuted, `Grid Cipher: Round ${i + 1} - Column Permutations`);
+
+    // STEP 4: Diagonal reading serialization to prepare for next round
+    const finalGrid = colPermuted;
+    prettyLog(finalGrid, `Grid Cipher: Round ${i + 1} - Final Grid Before Anti-Diagonal Read`);
+
+    currentChars = readDiagonal(colPermuted, effectiveW, H);
+    
+    prettyLog(currentChars, `Grid Cipher: Round ${i + 1} - Anti-Diagonal Readout (Flattened)`, false, effectiveW);
+
+    // DYNAMIC KEY EVOLUTION: Change the key so Round 2, 3, 4, and 5 use a different layout!
+    currentKey = deriveSubkey(currentKey); 
+  }
+  
+  return currentChars;
+}
+
+function gridDecipher(chars, key, origLen) {
+  const rounds = 5; // Must match the encoding round count
+  
+  // 1. Generate the exact key sequence used during encoding
+  let keySchedule = [key];
+  for (let i = 1; i < rounds; i++) {
+    keySchedule.push(deriveSubkey(keySchedule[keySchedule.length - 1]));
+  }
+  
+  let currentChars = [...chars];
+
+  // 2. Decode backward from Round 5 down to Round 1
+  for (let i = rounds - 1; i >= 0; i--) {
+    const roundKey = keySchedule[i];
+    const W = gridDims(roundKey.length);
+    const H = Math.ceil(origLen / W); 
+    const totalCells = H * W;
+
+    while (currentChars.length < totalCells) currentChars.push(' ');
+
+    const grid = writeDiagonal(currentChars, W, H);
+    prettyLog(grid, `Grid Decipher: Round ${i + 1} - Diagonal Matrix Recovery`, true);
+
+    const colRank = keyColOrder(roundKey);
+    const colRestored = inverseColPerm(grid, colRank, W);
+    prettyLog(colRestored, `Grid Decipher: Round ${i + 1} - Inverse Column Permutations`, true);
+
+    const rowPerm = keyRowOrder(roundKey);
+    const rowRestored = inverseRowPerm(colRestored, rowPerm, H);
+    prettyLog(rowRestored, `Grid Decipher: Round ${i + 1} - Inverse Row Permutations`, true);
+
+    const unshifted = inverseRowShifts(rowRestored, roundKey.length, W);
+    prettyLog(unshifted, `Grid Decipher: Round ${i + 1} - Inverse Row Shifts (Unscrambled Matrix)`, true);
+
+    // Flatten grid rows back into a linear layout for the next reverse round
+    currentChars = [];
+    for (let r = 0; r < H; r++) {
+      for (let c = 0; c < W; c++) {
+        currentChars.push(unshifted[r][c]);
+      }
+    }
+  }
+
+  return currentChars.slice(0, origLen);
+}
+
+// ENCODE
+async function pentaEncode(plainText, privateKey, publicKey) {
+  console.log(`%c--- STARTING PENTACODE ENCODE ---`, "color: #58a6ff; font-weight: bold;");
+  console.log(`["${plainText}"] after operation [Receive Plaintext Input]`);
+
+  const map1 = await buildMAP1(privateKey);
+  const map2 = await buildMAP2(privateKey);
+
+  const badPT = new Set();
+  [...plainText].forEach(c => { if (map1.enc[c] === undefined) badPT.add(c); });
+  if (badPT.size) return { unsupportedChars: [...badPT] };
+
+  const pvkN = toM1(privateKey, map1.enc);
+  if (pvkN.some(n => n === null)) return { pvkError: true };
+
+  const ptChars = [...plainText];
+  const rearranged = gridCipher(ptChars, privateKey);
+
+  const n = rearranged.length;
+  const pbkN = toM1(publicKey, map1.enc).filter(v => v !== null);
+  const pvkC = cycle(pvkN, n);
+  const pbkC = cycle(pbkN.length ? pbkN : [0], n);
+
+  const lenStream = await deriveCryptoStream(privateKey + "_lengths", n);
+
+  const result = [];
+  for (let i = 0; i < n; i++) {
+    const chN = map1.enc[rearranged[i]];
+    if (chN === undefined) return { unsupportedChars: [rearranged[i]] };
+    const targetSymbolCount = (lenStream[i] % 2) + 1;
+    const baseSum = chN + pvkC[i] + pbkC[i];
+    
+    let symbolLog = [];
+    for (let s = 0; s < targetSymbolCount; s++) {
+      const subSum = baseSum + s;
+      if (map2.enc[subSum] === undefined) return { rangeError: subSum };
+      result.push(map2.enc[subSum]);
+      symbolLog.push(map2.enc[subSum]);
+    }
+    console.log(`Character '${rearranged[i]}' (Map1 Value: ${chN}) mapped to symbols [${symbolLog.join(', ')}] \n via target count ${targetSymbolCount} (Sum base: ${baseSum})`);
+  }
+  
+  console.log(`["${result.join('')}"] after operation [Cryptographic Map2 Translation]`);
   return { ok: result.join('') };
 }
 
-// DECODE V.3
+// DECODE
 async function pentaDecode(encrypted, privateKey, publicKey) {
-  const chars = [...encrypted];
-  const pvkN  = toM1(privateKey);
-  const pbkN  = toM1(publicKey);
-  if (pvkN.some(n=>n===null)) return { pvkError: true };
-  if (pbkN.some(n=>n===null)) return { pbkError: true };
-  
+  console.log(`%c--- STARTING PENTACODE DECODE ---`, "color: #ff7b72; font-weight: bold;");
+  console.log(`["${encrypted}"] after operation [Receive Ciphertext Input]`);
+
+  const map1 = await buildMAP1(privateKey);
   const map2 = await buildMAP2(privateKey);
-  
-  // We don't know the size of plaintext beforehand, so we estimate based on symbol counts
+
+  const chars = [...encrypted];
+  const pvkN = toM1(privateKey, map1.enc);
+  const pbkN = toM1(publicKey, map1.enc).filter(v => v !== null);
+  if (pvkN.some(n => n === null)) return { pvkError: true };
+  if (!pbkN.length) return { pbkError: true };
+
   const lenStream = await deriveCryptoStream(privateKey + "_lengths", chars.length);
-  
-  const plainNums = [];
+
+  const rearrangedNums = [];
   let charIdx = 0;
   let plainIdx = 0;
-  
   const badSym = new Set();
-  
+
   while (charIdx < chars.length) {
-    const targetSymbolCount = (lenStream[plainIdx] % 3) + 1;
-    
-    if (charIdx + targetSymbolCount > chars.length) {
-      return { formatError: true }; // Ciphertext cut off or mismatched
-    }
-    
-    // Read the primary cipher block symbol
+    const targetSymbolCount = (lenStream[plainIdx] % 2) + 1;
+    if (charIdx + targetSymbolCount > chars.length) return { formatError: true };
+
     const val = map2.dec[chars[charIdx]];
     if (val === undefined) { badSym.add(chars[charIdx]); charIdx += targetSymbolCount; plainIdx++; continue; }
-    
-    // Validation: make sure secondary symbols match our deterministic math expansion
-    for(let s = 1; s < targetSymbolCount; s++) {
+
+    let lookaheadValid = true;
+    for (let s = 1; s < targetSymbolCount; s++) {
       const subVal = map2.dec[chars[charIdx + s]];
-      if(subVal !== val + s) {
-        return { validationError: true }; // Data tampered with or wrong key
+      if (subVal !== val + s) {
+        lookaheadValid = false;
+        return { validationError: true };
       }
     }
-    
-    // Dynamic execution of shift subtraction
-    // Real math positional matching alignment:
-    const privateKeyShiftValue = pvkN[plainIdx % pvkN.length];
-    const publicKeyShiftValue  = pbkN[plainIdx % pbkN.length];
-    
-    plainNums.push(val - privateKeyShiftValue - publicKeyShiftValue);
-    
+
+    const pvShift = pvkN[plainIdx % pvkN.length];
+    const pbShift = pbkN[plainIdx % pbkN.length];
+    const extractedM1Val = val - pvShift - pbShift;
+    rearrangedNums.push(extractedM1Val);
+
+    console.log(`Processed symbols [${chars.slice(charIdx, charIdx + targetSymbolCount).join(', ')}] -> Resolved Map1 Value: ${extractedM1Val} (Character: '${map1.dec[extractedM1Val]}')`);
+
     charIdx += targetSymbolCount;
     plainIdx++;
   }
-  
+
   if (badSym.size) return { invalidSymbols: [...badSym] };
-  const badRange = plainNums.filter(v => MAP1_DEC[v] === undefined);
+  const badRange = rearrangedNums.filter(v => map1.dec[v] === undefined);
   if (badRange.length) return { rangeError: badRange };
+
+  const rearrangedChars = rearrangedNums.map(v => map1.dec[v]);
+  console.log(`["${rearrangedChars.join('')}"] after operation [Inverse Cryptographic Shift Decryption]`);
   
-  return { ok: plainNums.map(v => MAP1_DEC[v]).join('') };
+  const origLen = rearrangedChars.length;
+  const restored = gridDecipher(rearrangedChars, privateKey, origLen);
+  return { ok: restored.join('') };
 }
 
 // UI Controllers
@@ -304,14 +551,7 @@ let currentPubKey  = '';
 function showErr(msg) { errEl.innerHTML=msg; errEl.style.display='block'; }
 function clearErr()   { errEl.style.display='none'; }
 
-function formatOutput(pubKey, encrypted) { return pubKey + '\n\n' + encrypted; }
-function parseInput(raw) {
-  const lines = raw.split('\n\n');
-  if (lines.length < 2) return null;
-  const pubKey    = lines[0].trim();
-  const encrypted = lines.slice(1).join('');
-  return { pubKey, encrypted };
-}
+function formatOutput(pubKey, encrypted) { return pubKey + '\n' + encrypted; }
 
 async function onPlainTextChange() {
   if (isUpdating) return;
@@ -322,13 +562,12 @@ async function onPlainTextChange() {
   if (!plainText)  { decoderEl.value=''; currentPubKey=''; isUpdating=false; return; }
   if (!privateKey) { showErr('Enter a private key to encode.'); decoderEl.value=''; isUpdating=false; return; }
   
-  const targetLen = plainText.length;
-  if (currentPubKey.length < targetLen)
-    currentPubKey += genPublicKey(targetLen - currentPubKey.length);
-  else if (currentPubKey.length > targetLen)
-    currentPubKey = currentPubKey.slice(0, targetLen);
-    
+  if (currentPubKey.length !== 20) {
+    currentPubKey = genPublicKey(20);
+  }
+  
   const res = await pentaEncode(plainText, privateKey, currentPubKey);
+  
   if (res.unsupportedChars) {
     const labels = res.unsupportedChars.map(c => c===' '?'SPACE':c==='\n'?'NEWLINE':c).join(' ');
     showErr('Unsupported character(s): <b><span style="color:#ffd700">[</span> '+labels+' <span style="color:#ffd700">]</span></b>');
@@ -338,7 +577,7 @@ async function onPlainTextChange() {
   } else if (res.rangeError!==undefined) {
     showErr('Encoding overflow (sum='+res.rangeError+'). Try a different private/public key configuration.'); decoderEl.value='';
   } else {
-    decoderEl.value = formatOutput(currentPubKey, res.ok);
+    decoderEl.value = currentPubKey + res.ok;
   }
   isUpdating = false;
 }
@@ -351,14 +590,17 @@ async function onCodeChange() {
   const privateKey = pvkInput.value;
   if (!raw)        { encoderEl.value=''; isUpdating=false; return; }
   if (!privateKey) { showErr('Enter the private key to decode.'); isUpdating=false; return; }
-  const parsed = parseInput(raw);
-  if (!parsed || !parsed.pubKey || !parsed.encrypted) {
-    showErr('Invalid format. Expected: public key on line 1, encrypted text on line 2.');
+  
+  if (raw.length < 20) {
+    showErr('Invalid Pentacode: too short (minimum 20 chars for public key).');
     isUpdating=false; return;
   }
-  const { pubKey, encrypted } = parsed;
+  
+  const pubKey    = raw.slice(0, 20);
+  const encrypted = raw.slice(20);
   
   const res = await pentaDecode(encrypted, privateKey, pubKey);
+  
   if (res.invalidSymbols || res.validationError || res.formatError) {
     showErr('Invalid pentacode data — wrong private key or corrupted transmission text.');
     encoderEl.value='';
@@ -375,12 +617,20 @@ async function onCodeChange() {
   isUpdating = false;
 }
 
-encoderEl.addEventListener('input', onPlainTextChange);
-decoderEl.addEventListener('input', onCodeChange);
+// change 0 to [any value] to give a delay for console logs visualization
+const debouncedPlainTextChange = debounce(onPlainTextChange, 0);
+const debouncedCodeChange = debounce(onCodeChange, 0);
+
+encoderEl.addEventListener('input', debouncedPlainTextChange);
+decoderEl.addEventListener('input', debouncedCodeChange);
+
 pvkInput.addEventListener('input', () => {
   currentPubKey = '';
-  if (encoderEl.value) onPlainTextChange();
-  else if (decoderEl.value) onCodeChange();
+  if (encoderEl.value) {
+    debouncedPlainTextChange();
+  } else if (decoderEl.value) {
+    debouncedCodeChange();
+  }
 });
 
 copyBtn.addEventListener('click', () => {
@@ -388,6 +638,74 @@ copyBtn.addEventListener('click', () => {
     .then(() => { copyNote.style.display='block'; setTimeout(()=>{copyNote.style.display='none';},3000); })
     .catch(err => console.error('Failed to copy:', err));
 });
+
+//HELPERS
+
+function prettyLog(data, operationName, isDecode = false, forceWidth = null) {
+  const color = isDecode ? "#ff7b72" : "#58a6ff";
+  const monoStyle = "font-family: monospace; font-size: 13px; line-height: 1.4;";
+  
+  console.log(`%c▶ AFTER OPERATION: [${operationName.toUpperCase()}]`, `color: ${color}; font-weight: bold; background: #161b22; padding: 4px 8px; border-left: 4px solid ${color};`);
+
+  let loggedAsGrid = false;
+
+  if (Array.isArray(data) && data.length > 0 && Array.isArray(data[0])) {
+    data.forEach(row => {
+      const formattedRow = row.map(char => {
+        if (char === " ") return "[ ]";
+        if (char === "\n") return "[□]";
+        return `[${char}]`;
+      }).join("");
+      console.log(`%c  ${formattedRow}`, monoStyle);
+    });
+    loggedAsGrid = true;
+
+    const flatString = data.map(row => 
+      row.map(char => char === "\n" ? "▶" : char).join("")
+    ).join("");
+    console.log(`%c  ➔ As String: "${flatString}"`, monoStyle);
+
+  } else if (Array.isArray(data) && forceWidth && forceWidth > 0) {
+    for (let i = 0; i < data.length; i += forceWidth) {
+      const rowChunk = data.slice(i, i + forceWidth);
+      while (rowChunk.length < forceWidth) rowChunk.push(" ");
+      
+      const formattedRow = rowChunk.map(char => {
+        if (char === " ") return "[ ]";
+        if (char === "\n") return "[□]";
+        return `[${char}]`;
+      }).join("");
+      console.log(`%c  ${formattedRow}`, monoStyle);
+    }
+    loggedAsGrid = true;
+    
+    const plainString = data.map(char => char === "\n" ? "▶" : char).join("");
+    console.log(`%c  ➔ As String: "${plainString}"`, monoStyle);
+
+  } else if (Array.isArray(data)) {
+    const formattedFlat = data.map(char => {
+      if (char === " ") return "[␣]";
+      if (char === "\n") return "[▶]";
+      return `[${char}]`;
+    }).join("");
+    
+    const plainString = data.map(char => char === "\n" ? "▶" : char).join("");
+    console.log(`%c  ➔ As String: "${plainString}"`, monoStyle);
+  } else {
+    console.log(`%c  ➔ Value: ${data}`, monoStyle);
+  }
+  console.log("\n");
+}
+
+function debounce(func, delay) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}
 </script>
 </body>
 </html>
