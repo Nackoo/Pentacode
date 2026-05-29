@@ -114,6 +114,8 @@ zig-zag diagonal path starting from the top-right corner down to the bottom-left
 
 *Result of Phase 2:* Your message characters are completely out of order, e.g., "ESCERS..."
 
+these phase is repeated for 5 times.
+
 ---
 
 ## PHASE 3: MATHEMATICAL SYMBOL ENCODING
