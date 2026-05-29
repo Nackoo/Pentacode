@@ -259,7 +259,7 @@ As String: `yimnnwa d en ltgaehalphoirel is`
 As String: `yidm gneaonneiw hra ae llltp his`
 
 `Character 'y' (Map1 Value: 60) mapped to symbols [პ]
-via target count 1 (Sum base: 193)`
+via target count 1 (Sum base: 193)` \n
 `Character 'i' (Map1 Value: 25) mapped to symbols [']
 via target count 1 (Sum base: 116)`
 `Character 'd' (Map1 Value: 16) mapped to symbols [χ, δ]
