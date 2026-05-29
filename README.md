@@ -26,7 +26,9 @@ randomized, custom translation alphabets.
 The system takes your Private Key (e.g., "katze") and runs it through the 
 secure SHA-256 algorithm. It chains the output hashes together to form a long, 
 unpredictable, but reproducible stream of numbers.
+```
   Private Key ---> [ SHA-256 ] ---> [ Endless Stream of Numbers ]
+```
 
 ### step 1.2: shuffling MAP1
 1. It takes the standard 99 input characters.
