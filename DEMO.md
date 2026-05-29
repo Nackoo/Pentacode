@@ -259,9 +259,6 @@ As String: `yimnnwa d en ltgaehalphoirel is`
 As String: `yidm gneaonneiw hra ae llltp his`
 
 ```
-
-As String: `yidm gneaonneiw hra ae llltp his`
-
 Character 'y' (Map1 Value: 60) mapped to symbols [პ]
 via target count 1 (Sum base: 193)
 
