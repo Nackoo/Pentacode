@@ -548,6 +548,11 @@ const copyNote  = document.getElementById('copyNotification');
 let isUpdating     = false;
 let currentPubKey  = '';
 
+const savedPVK = localStorage.getItem('pentacode_pvk');
+if (savedPVK) {
+  pvkInput.value = savedPVK;
+}
+
 function showErr(msg) { errEl.innerHTML=msg; errEl.style.display='block'; }
 function clearErr()   { errEl.style.display='none'; }
 
@@ -625,6 +630,8 @@ encoderEl.addEventListener('input', debouncedPlainTextChange);
 decoderEl.addEventListener('input', debouncedCodeChange);
 
 pvkInput.addEventListener('input', () => {
+  localStorage.setItem('pentacode_pvk', pvkInput.value);
+
   currentPubKey = '';
   if (encoderEl.value) {
     debouncedPlainTextChange();
