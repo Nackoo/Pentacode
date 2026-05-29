@@ -359,5 +359,4 @@ Character 's' (Map1 Value: 102) mapped to symbols [է]
 via target count 1 (Sum base: 191)
 ```
 
-```პ`χδЗП+ժ5უა~6իԹ¬Օ÷Чიքoπդռ√łEαგრ$`ЦոЮՈკგԻწEԴრվსէ```
-after operation [Cryptographic Map2 Translation]
+### ciphertext: **პ`χδЗП+ժ5უა~6իԹ¬Օ÷Чიքoπդռ√łEαგრ$`ЦոЮՈკგԻწEԴრվსէ**
