@@ -1,11 +1,3 @@
-```
-    ____             __                       __   
-   / __ \___  ____  / /_____ __________  ____/ /__ 
-  / /_/ / _ \/ __ \/ __/ __ `/ ___/ __ \/ __  / _ \
- / ____/  __/ / / / /_/ /_/ / /__/ /_/ / /_/ /  __/
-/_/    \___/_/ /_/\__/\__,_/\___/\____/\__,_/\___/ 
-```    
-
 ## OVERVIEW: THE TWO CORE ALPHABETS
 
 Pentacode uses two distinct character sets to hide your message:
